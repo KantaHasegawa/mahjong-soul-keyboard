@@ -4,19 +4,15 @@ class Fetcher {
         this.baseURL = 'http://localhost:8090';
     }
     getPaiCount = async (payload) => {
-        try {
-            const res = await fetch(this.baseURL + "/", {
-                method: 'POST',
-                headers: {
-                'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            })
-            const json = await res.json()
-            return json.count
-        }catch (e) {
-            console.error(e)
-        }
+        const res = await fetch(this.baseURL + "/", {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        const json = await res.json()
+        return json.count
     }
 }
 
@@ -83,6 +79,7 @@ let intervalId = null;
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "capture") {
         if (intervalId) {
+            chrome.runtime.sendMessage({ action: "buttonText", text: "START" });
             // 既にタイマーが動いている場合、タイマーを停止する 
             clearInterval(intervalId);
             intervalId = null;
@@ -90,14 +87,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             sendResponse({ result: "stop"});
         } else {
             // タイマーが動いていない場合、新しいタイマーをセットする
+            chrome.runtime.sendMessage({ action: "buttonText", text: "STOP" });
             intervalId = setInterval(() => {
                 chrome.tabs.captureVisibleTab(async (screenshotUrl) => {
                     const payload = {
                         "image": screenshotUrl
                     };
-                    const paiCount = await fetcher.getPaiCount(payload);
-                    pai.updateField(paiCount);
-                    chrome.runtime.sendMessage({ action: "currentPaiCount", currentPaiCount: Pai.paiType[pai.getCurrentPaiType()] });
+                    try{
+                        const paiCount = await fetcher.getPaiCount(payload);
+                        pai.updateField(paiCount);
+                        chrome.runtime.sendMessage({ action: "currentPaiCount", currentPaiCount: Pai.paiType[pai.getCurrentPaiType()] });
+                    }catch(e){
+                        chrome.runtime.sendMessage({ action: "error", error: e });
+                        clearInterval(intervalId);
+                        intervalId = null;
+                    }
                 });
             }, 2000); // 2秒ごと
             sendResponse({ result: "start"});
