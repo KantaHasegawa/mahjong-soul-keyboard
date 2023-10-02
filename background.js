@@ -77,17 +77,28 @@ class Pai {
 // Init
 const fetcher = new Fetcher()
 const pai = new Pai()
+let intervalId = null;
 
 // Event
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === "captureScreenshot") {
-        chrome.tabs.captureVisibleTab(async (screenshotUrl) => {
-            payload = {
-                "image": screenshotUrl
-            }
-            const paiCount = await fetcher.getPaiCount(payload)
-            pai.updateField(paiCount)
-        });
-        sendResponse({ result: "ok" });
+    if (message.action === "capture") {
+        if (intervalId) {
+            // 既にタイマーが動いている場合、タイマーを停止する
+            clearInterval(intervalId);
+            intervalId = null;
+            sendResponse({ result: "stopped" });
+        } else {
+            // タイマーが動いていない場合、新しいタイマーをセットする
+            intervalId = setInterval(() => {
+                chrome.tabs.captureVisibleTab(async (screenshotUrl) => {
+                    const payload = {
+                        "image": screenshotUrl
+                    };
+                    const paiCount = await fetcher.getPaiCount(payload);
+                    pai.updateField(paiCount);
+                });
+            }, 3000); // 3秒ごと
+            sendResponse({ result: "started" });
+        }
     }
 });

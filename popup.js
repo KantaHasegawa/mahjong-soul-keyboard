@@ -15,7 +15,7 @@ setTimeout(async () => {
 setTimeout(async() => {
     const captureButton = document.getElementById('capture-button');
     captureButton.addEventListener('click', () => {
-        chrome.runtime.sendMessage({action: "captureScreenshot"})
+        chrome.runtime.sendMessage({action: "capture"})
     }
 )
 }, 5000)
