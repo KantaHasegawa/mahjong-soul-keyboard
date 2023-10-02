@@ -83,10 +83,11 @@ let intervalId = null;
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "capture") {
         if (intervalId) {
-            // 既にタイマーが動いている場合、タイマーを停止する
+            // 既にタイマーが動いている場合、タイマーを停止する 
             clearInterval(intervalId);
             intervalId = null;
-            sendResponse({ result: "stopped" });
+            chrome.runtime.sendMessage({ action: "currentPaiCount", currentPaiCount: "?" });
+            sendResponse({ result: "stop"});
         } else {
             // タイマーが動いていない場合、新しいタイマーをセットする
             intervalId = setInterval(() => {
@@ -96,9 +97,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     };
                     const paiCount = await fetcher.getPaiCount(payload);
                     pai.updateField(paiCount);
+                    chrome.runtime.sendMessage({ action: "currentPaiCount", currentPaiCount: Pai.paiType[pai.getCurrentPaiType()] });
                 });
-            }, 3000); // 3秒ごと
-            sendResponse({ result: "started" });
+            }, 2000); // 2秒ごと
+            sendResponse({ result: "start"});
         }
+        return true;
     }
 });

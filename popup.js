@@ -1,3 +1,12 @@
+// Event
+chrome.runtime.onMessage.addListener((message) => {
+    if (message.action === "currentPaiCount") {
+        const element = document.getElementById("current-pai-count");
+        element.textContent = message.currentPaiCount;
+    }
+});
+
+
 setTimeout(async () => {
     console.log('setup ok')
     document.getElementById('clickAtCoordinates').addEventListener('click', function() {
@@ -13,9 +22,12 @@ setTimeout(async () => {
 }, 5000);
 
 setTimeout(async() => {
-    const captureButton = document.getElementById('capture-button');
+    const captureButton = document.getElementById('capture');
     captureButton.addEventListener('click', () => {
-        chrome.runtime.sendMessage({action: "capture"})
+        chrome.runtime.sendMessage({action: "capture"}).then((response) => {
+            console.log(response)
+        }
+    )
     }
 )
 }, 5000)
