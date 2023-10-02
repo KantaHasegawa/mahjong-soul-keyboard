@@ -21,7 +21,13 @@ chrome.runtime.onMessage.addListener((message) => {
 // DOM
 document.addEventListener("DOMContentLoaded", function() {
     const button = document.getElementById('capture')
-    button.textContent = "START";
+    chrome.runtime.sendMessage({action: "isCapturing"}).then((response) => {
+        if(response.isCapturing){
+            button.textContent = "STOP"
+        } else {
+            button.textContent = "START"
+        }
+    })
     button.addEventListener('click', () => {
         chrome.runtime.sendMessage({action: "capture"}).then((response) => {
             console.log(response)

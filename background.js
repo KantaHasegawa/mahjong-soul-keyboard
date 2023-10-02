@@ -134,4 +134,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         points = Pai.points[pai.getCurrentPaiType()]
         sendResponse({ x: points[pai.currentIndex][0], y: points[pai.currentIndex][1] });
     }
+    // キャプチャが開始されているかどうかを返す
+    if (message.action === "isCapturing") {
+        sendResponse({ isCapturing: intervalId !== null });
+    }
 });
