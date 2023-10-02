@@ -18,8 +18,8 @@ class Fetcher {
 
 class Pai {
     constructor() {
+        this.currentIndex = 0
         this.currentPaiType = "DEFAULT"
-        this.currentPoints = Pai.points["DEFAULT"]
     }
     static paiType = {
         DEFAULT: 13,
@@ -35,24 +35,20 @@ class Pai {
     };
     
     static points = {
-        DEFAULT: [],
-        DEFAULT_TSUMO: [],
-        CALL_1: [],
-        CALL_1_TSUMO: [],
-        CALL_2: [],
-        CALL_2_TSUMO: [],
-        CALL_3: [],
-        CALL_3_TSUMO: [],
-        CALL_4: [],
-        CALL_4_TSUMO: []
+        DEFAULT: [[500, 500], [600, 500], [700, 500], [800, 500], [900, 500]],
+        DEFAULT_TSUMO: [[500, 500], [600, 500], [700, 500], [800, 500], [900, 500]],
+        CALL_1: [[500, 500], [600, 500], [700, 500], [800, 500], [900, 500]],
+        CALL_1_TSUMO: [[500, 500], [600, 500], [700, 500], [800, 500], [900, 500]],
+        CALL_2: [[500, 500], [600, 500], [700, 500], [800, 500], [900, 500]],
+        CALL_2_TSUMO: [[500, 500], [600, 500], [700, 500], [800, 500], [900, 500]],
+        CALL_3: [[500, 500], [600, 500], [700, 500], [800, 500], [900, 500]],
+        CALL_3_TSUMO: [[500, 500], [600, 500], [700, 500], [800, 500], [900, 500]],
+        CALL_4: [[500, 500], [600, 500], [700, 500], [800, 500], [900, 500]],
+        CALL_4_TSUMO: [[500, 500], [600, 500], [700, 500], [800, 500], [900, 500]]
     }
 
     getCurrentPaiType = () => {
         return this.currentPaiType
-    }
-
-    getCurrentPoints = () => {
-        return this.currentPoints
     }
 
     updateField = (paiCount) => {
@@ -66,7 +62,6 @@ class Pai {
             }
         }
         this.currentPaiType = result
-        this.currentPoints = Pai.points[result]
     }
 }
 
@@ -77,6 +72,7 @@ let intervalId = null;
 
 // Event
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    // キャプチャー開始
     if (message.action === "capture") {
         if (intervalId) {
             chrome.runtime.sendMessage({ action: "buttonText", text: "START" });
@@ -89,10 +85,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             // タイマーが動いていない場合、新しいタイマーをセットする
             chrome.runtime.sendMessage({ action: "buttonText", text: "STOP" });
             intervalId = setInterval(() => {
+                // 画面のキャプチャを取得する
                 chrome.tabs.captureVisibleTab(async (screenshotUrl) => {
                     const payload = {
                         "image": screenshotUrl
                     };
+                    // サーバーに画像を送信して牌の数を取得する
                     try{
                         const paiCount = await fetcher.getPaiCount(payload);
                         pai.updateField(paiCount);
@@ -103,9 +101,37 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                         intervalId = null;
                     }
                 });
-            }, 2000); // 2秒ごと
+            }, 2000); // 2秒ごとに実行
             sendResponse({ result: "start"});
         }
         return true;
+    }
+    // 右に移動
+    if (message.action === "moveRight") {
+        console.log("back 発火")
+        pai.currentIndex += 1
+        points = Pai.points[pai.getCurrentPaiType()]
+        // 一番左に戻る
+        if (pai.currentIndex >= points.length) {
+            pai.currentIndex = 0
+        }
+        console.log(points[pai.currentIndex])
+        console.log(points[pai.currentIndex][0])
+        sendResponse({ x: points[pai.currentIndex][0], y: points[pai.currentIndex][1] });
+    }
+    // 左に移動
+    if (message.action === "moveLeft") {
+        pai.currentIndex -= 1
+        points = Pai.points[pai.getCurrentPaiType()]
+        // 一番右に戻る
+        if (pai.currentIndex < 0) {
+            pai.currentIndex = points.length - 1
+        }
+        sendResponse({ x: points[pai.currentIndex][0], y: points[pai.currentIndex][1] });
+    }
+    // 現在の位置で牌を決定する
+    if (message.action === "submit") {
+        points = Pai.points[pai.getCurrentPaiType()]
+        sendResponse({ x: points[pai.currentIndex][0], y: points[pai.currentIndex][1] });
     }
 });

@@ -1,9 +1,27 @@
+// キーの入力間隔を制限する
+let lastKeyPressedTime = 0;
+const delay = 100;
+
 window.addEventListener("keydown", function(event) {
-    if (event.ctrlKey && event.key === "f") {
-        clickByPoints(500, 900)
+    let currentTime = new Date().getTime();
+
+    if (event.ctrlKey && event.key === "f" && currentTime - lastKeyPressedTime > delay) {
+        chrome.runtime.sendMessage({action: "moveRight"}, function(response) {
+            clickByPoints(response.x, response.y)
+            lastKeyPressedTime = currentTime;
+        });
     }
-    if (event.ctrlKey && event.key === "b") {
-        clickByPoints(500, 900)
+    if (event.ctrlKey && event.key === "b" && currentTime - lastKeyPressedTime > delay) {
+        chrome.runtime.sendMessage({action: "moveLeft"}, function(response) {
+            clickByPoints(response.x, response.y)
+            lastKeyPressedTime = currentTime;
+        });
+    }
+    if (event.key === "Enter" && currentTime - lastKeyPressedTime > delay) {
+        chrome.runtime.sendMessage({action: "submit"}, function(response) {
+            clickByPoints(response.x, response.y)
+            lastKeyPressedTime = currentTime;
+        });
     }
 });
 
@@ -19,7 +37,6 @@ function clickByPoints(x, y) {
             clientY: rect.top + y
         });
     };
-
     ['mousedown', 'mouseup', 'click'].forEach(type => {
         canvas.dispatchEvent(createMouseEvent(type));
     });
