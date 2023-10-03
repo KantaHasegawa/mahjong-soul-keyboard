@@ -1,6 +1,6 @@
 // キーの入力間隔を制限する
 let lastKeyPressedTime = 0;
-const delay = 100;
+const delay = 50;
 
 window.addEventListener("keydown", function(event) {
     let currentTime = new Date().getTime();
