@@ -143,15 +143,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
     // 右に移動
     if (message.action === "moveRight") {
-        console.log("back 発火")
         pai.currentIndex += 1
         points = Pai.points[pai.getCurrentPaiType()]
         // 一番左に戻る
         if (pai.currentIndex >= points.length) {
             pai.currentIndex = 0
         }
-        console.log(points[pai.currentIndex])
-        console.log(points[pai.currentIndex][0])
         sendResponse({ x: points[pai.currentIndex][0], y: points[pai.currentIndex][1] });
     }
     // 左に移動
