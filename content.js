@@ -26,15 +26,19 @@ window.addEventListener("keydown", function(event) {
 });
 
 function clickByPoints(x, y) {
-    const canvas = document.querySelector('canvas');  // 最初のcanvas要素を取得します。
+    const canvas = document.querySelector('canvas');
+    // canvasのサイズを取得
+    const canvasWidth = canvas.offsetWidth;
+    const canvasHeight = canvas.offsetHeight;
+    // canvasの始点座標を取得
     const rect = canvas.getBoundingClientRect();
     const createMouseEvent = (type) => {
         return new MouseEvent(type, {
             bubbles: true,
             cancelable: true,
             view: window,
-            clientX: rect.left + x,
-            clientY: rect.top + y
+            clientX: rect.left + Math.round(canvasWidth * x),
+            clientY: rect.top + Math.round(canvasHeight * y),
         });
     };
     ['mousedown', 'mouseup', 'click'].forEach(type => {
