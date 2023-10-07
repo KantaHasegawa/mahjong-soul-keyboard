@@ -4,15 +4,33 @@ chrome.runtime.onMessage.addListener((message) => {
         const element = document.getElementById("capture");
         element.textContent = message.text;
     }
-    if (message.action === "currentPaiCount") {
-        const element = document.getElementById("current-pai-count");
-        element.textContent = message.currentPaiCount;
+    if (message.action === "currentCallType") {
+        const element = document.getElementById("current-call-type");
+        let text = ""
+        switch (message.currentCallType) {
+            case "CALL_1":
+                text = "1鳴き"
+                break
+            case "CALL_2":
+                text = "2鳴き"
+                break
+            case "CALL_3":
+                text = "3鳴き"
+                break
+            case "CALL_4":
+                text = "4鳴き"
+                break
+            default:
+                text = "鳴きなし"
+                break
+        }
+        element.textContent = text;
     }
     if (message.action === "error") {
         button = document.getElementById("capture")
-        paiCountText = document.getElementById("current-pai-count")
+        callTypeText = document.getElementById("current-call-type")
         button.textContent = "START"
-        paiCountText.textContent = "?"
+        callTypeText.textContent = "?"
         console.error(message.error)
         alert("エラーが発生しました")
     }
