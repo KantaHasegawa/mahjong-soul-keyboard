@@ -1,4 +1,6 @@
 # What
+https://chrome.google.com/webstore/detail/mahjongsoulkeyboard/blaepenjnaaccnkgmoidhohhbhjkfjcd?hl=ja&authuser=0  
+
 This extension allows you to control MahjongSoul using keyboard shortcuts. You can select and play tiles using [ctrl + F], [ctrl + B], and [Enter].
 
 Currently, only tile selection and play are supported, but in the future, you'll be able to choose calls.
